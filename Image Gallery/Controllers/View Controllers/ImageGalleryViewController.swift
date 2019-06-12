@@ -19,17 +19,34 @@ class ImageGalleryViewController: UIViewController {
   private let imageCellReuseIdentifier = "Image Cell"
   private let headerViewReuseIdentifier = "Image Gallery Header"
   private let dropPlaceholderReuseIdentifier = "Drop Placeholder"
-  private let itemsPerRow: CGFloat = 3
   private let sectionInsets = UIEdgeInsets(top: 50.0, left: 20.0, bottom: 50.0, right: 20.0)
+  private let itemMinimumWidth: CGFloat = 20.0
   
-  private lazy var galleries: [ImageGallery] = [ImageGallery([], title: "Dropped")]
+  private lazy var galleries: [ImageGallery] = []
   
   private lazy var fetcher = URLFetcher.shared
+  
+  private var itemWidth: CGFloat = 200.0
+  
+  private var flowLayout: UICollectionViewFlowLayout? {
+    return collectionView?.collectionViewLayout as? UICollectionViewFlowLayout
+  }
   
   // MARK: - View Controller Lifecycle
   
   override func viewDidLoad() {
     super.viewDidLoad()
+  }
+  
+  // MARK: - Actions
+  
+  @IBAction func onPinchView(_ sender: UIPinchGestureRecognizer) {
+    let suggestedWidth = itemWidth * sender.scale
+    if suggestedWidth <= (view.bounds.width - sectionInsets.left - sectionInsets.right) && suggestedWidth >= itemMinimumWidth {
+      itemWidth = suggestedWidth
+    }
+    sender.scale = 1
+    flowLayout?.invalidateLayout()
   }
   
   // MARK: - Helper methods
@@ -42,15 +59,15 @@ class ImageGalleryViewController: UIViewController {
   }
   
   private func insertImage(_ tuple: ImageGallery.ImageTuple, at indexPath: IndexPath) {
+    let endIndex = galleries[indexPath.section].images.endIndex
+    let index = indexPath.row > endIndex ? endIndex : indexPath.row
     galleries[indexPath.section].images.insert(tuple, at: index)
   }
 }
 
 // MARK: - Colection View Delegate
 
-extension ImageGalleryViewController: UICollectionViewDelegate {
-  // TODO
-}
+extension ImageGalleryViewController: UICollectionViewDelegate {}
 
 // MARK: - Collection View Data Source
 
@@ -109,8 +126,6 @@ extension ImageGalleryViewController: UICollectionViewDelegateFlowLayout {
                       layout collectionViewLayout: UICollectionViewLayout,
                       sizeForItemAt indexPath: IndexPath
   ) -> CGSize {
-    let paddingSpace = sectionInsets.left * (itemsPerRow + 1)
-    let itemWidth = (view.frame.width - paddingSpace) / itemsPerRow
     let ratio = getImageData(at: indexPath).aspectRatio
     let itemHeight = itemWidth / CGFloat(ratio)
     
@@ -203,5 +218,31 @@ extension ImageGalleryViewController: UICollectionViewDropDelegate {
         }
       }
     }
+  }
+}
+
+// MARK: - Galery Chooser Table View Controller Delegate
+extension ImageGalleryViewController: GalleryChooserTableViewControllerDelegate {
+  func renameGallery(_ gallery: ImageGallery, with newName: String) {
+    galleries.forEach {
+      if $0.title == gallery.title {
+        $0.title = newName
+      }
+    }
+    collectionView.reloadData()
+  }
+  
+  func selectGallery(_ gallery: ImageGallery) {
+    if !galleries.contains(where: {
+      $0.title == gallery.title
+    }) {
+      galleries.append(gallery)
+    }
+    collectionView.reloadData()
+  }
+  
+  func deselectGallery(_ gallery: ImageGallery) {
+    galleries.removeAll { $0.title == gallery.title}
+    collectionView.reloadData()
   }
 }
