@@ -27,7 +27,7 @@ class ImageFetcher
     //   otherwise the result of the fetch will be discarded and the handler never called.
     // In other words, keeping a strong pointer to your instance says "I'm still interested in its result."
     
-    var backup: UIImage? { didSet { callHandlerIfNeeded() } }
+    var backup: UIImage? =  UIImage(imageLiteralResourceName: "question-mark") { didSet { callHandlerIfNeeded() } }
     
     func fetch(_ url: URL) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
@@ -119,7 +119,7 @@ extension UIImage
     }
     
     func storeLocallyAsJPEG(named name: String) -> URL? {
-        if let imageData = UIImageJPEGRepresentation(self, 1.0) {
+      if let imageData = UIImage.jpegData(self)(compressionQuality: 1.0){
             if let url = UIImage.urlToStoreLocallyAsJPEG(named: name) {
                 do {
                     try imageData.write(to: url)
@@ -165,7 +165,7 @@ extension NSAttributedString {
 }
 
 extension String {
-    func attributedString(withTextStyle style: UIFontTextStyle, ofSize size: CGFloat) -> NSAttributedString {
+  func attributedString(withTextStyle style: UIFont.TextStyle, ofSize size: CGFloat) -> NSAttributedString {
         let font = UIFontMetrics(forTextStyle: .body).scaledFont(for: UIFont.preferredFont(forTextStyle: .body).withSize(size))
         return NSAttributedString(string: self, attributes: [.font:font])
     }
