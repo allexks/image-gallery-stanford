@@ -148,6 +148,7 @@
                                         </constraints>
                                         <connections>
                                             <outlet property="image" destination="Oet-4F-Au2" id="Lns-no-E1P"/>
+                                            <segue destination="i5n-ut-a6m" kind="show" identifier="View Image" id="dw8-Re-tdP"/>
                                         </connections>
                                     </collectionViewCell>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="Drop Placeholder" id="c1j-LK-tve">
@@ -223,6 +224,50 @@
                 </pinchGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="-778" y="77"/>
+        </scene>
+        <!--Image Scroll View Controller-->
+        <scene sceneID="05E-yj-mRF">
+            <objects>
+                <viewController id="i5n-ut-a6m" customClass="ImageScrollViewController" customModule="Image_Gallery" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="OKz-rt-rb0">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="E1Q-t8-CU1">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="768" placeholderIntrinsicHeight="1004" translatesAutoresizingMaskIntoConstraints="NO" id="lIY-4p-hB9">
+                                        <rect key="frame" x="0.0" y="0.0" width="768" height="1004"/>
+                                    </imageView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="lIY-4p-hB9" secondAttribute="trailing" id="5Cv-li-xLU"/>
+                                    <constraint firstItem="lIY-4p-hB9" firstAttribute="top" secondItem="E1Q-t8-CU1" secondAttribute="top" id="KtI-TY-YA4"/>
+                                    <constraint firstAttribute="bottom" secondItem="lIY-4p-hB9" secondAttribute="bottom" id="hV2-4p-0Wh"/>
+                                    <constraint firstItem="lIY-4p-hB9" firstAttribute="leading" secondItem="E1Q-t8-CU1" secondAttribute="leading" id="yo8-9N-DFv"/>
+                                </constraints>
+                                <connections>
+                                    <outlet property="delegate" destination="i5n-ut-a6m" id="LXM-0p-izb"/>
+                                </connections>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="E1Q-t8-CU1" firstAttribute="trailing" secondItem="OKz-rt-rb0" secondAttribute="trailing" id="4aL-Qu-TP5"/>
+                            <constraint firstItem="E1Q-t8-CU1" firstAttribute="top" secondItem="OKz-rt-rb0" secondAttribute="top" id="H4E-Ti-pi8"/>
+                            <constraint firstItem="E1Q-t8-CU1" firstAttribute="leading" secondItem="OKz-rt-rb0" secondAttribute="leading" id="i6l-xk-hly"/>
+                            <constraint firstItem="E1Q-t8-CU1" firstAttribute="bottom" secondItem="OKz-rt-rb0" secondAttribute="bottom" id="nkb-fa-I9I"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="Rtk-NX-DI5"/>
+                    </view>
+                    <connections>
+                        <outlet property="imageView" destination="lIY-4p-hB9" id="csS-2N-7BW"/>
+                        <outlet property="scrollView" destination="E1Q-t8-CU1" id="anN-wK-XmF"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="faF-Ed-8Ed" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="163.28125" y="76.7578125"/>
         </scene>
     </scenes>
 </document>

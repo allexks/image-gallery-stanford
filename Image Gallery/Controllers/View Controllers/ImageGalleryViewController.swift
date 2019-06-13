@@ -19,6 +19,7 @@ class ImageGalleryViewController: UIViewController {
   private let imageCellReuseIdentifier = "Image Cell"
   private let headerViewReuseIdentifier = "Image Gallery Header"
   private let dropPlaceholderReuseIdentifier = "Drop Placeholder"
+  private let viewImageSegueIdentifier = "View Image"
   private let sectionInsets = UIEdgeInsets(top: 50.0, left: 20.0, bottom: 50.0, right: 20.0)
   private let itemMinimumWidth: CGFloat = 20.0
   
@@ -47,6 +48,17 @@ class ImageGalleryViewController: UIViewController {
     }
     sender.scale = 1
     flowLayout?.invalidateLayout()
+  }
+  
+  // MARK: - Navigation
+  
+  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    if segue.identifier == viewImageSegueIdentifier,
+      let destination = segue.destination as? ImageScrollViewController,
+      let cell = sender as? ImageCell,
+      let indexPath = collectionView.indexPath(for: cell) {
+      destination.url = getImageData(at: indexPath).url
+    }
   }
   
   // MARK: - Helper methods
