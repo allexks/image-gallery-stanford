@@ -10,11 +10,11 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Root View Controller-->
+        <!--Image Galleries-->
         <scene sceneID="tSM-0q-R6w">
             <objects>
                 <tableViewController clearsSelectionOnViewWillAppear="NO" id="gEL-pN-x1O" customClass="GalleryChooserTableViewController" customModule="Image_Gallery" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" allowsMultipleSelection="YES" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="RVn-TL-MAB">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="RVn-TL-MAB">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -26,11 +26,14 @@
                                     <rect key="frame" x="0.0" y="0.0" width="320" height="62.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <textField opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Image Gallery Name" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eav-s5-4OY">
+                                        <textField opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Image Gallery Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eav-s5-4OY">
                                             <rect key="frame" x="20" y="5" width="290" height="52.5"/>
                                             <nil key="textColor"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                             <textInputTraits key="textInputTraits"/>
+                                            <connections>
+                                                <outlet property="delegate" destination="gEL-pN-x1O" id="ZYN-cA-uDZ"/>
+                                            </connections>
                                         </textField>
                                     </subviews>
                                     <constraints>
@@ -50,7 +53,7 @@
                             <outlet property="delegate" destination="gEL-pN-x1O" id="lfx-CA-cyX"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Root View Controller" id="88l-2R-Fa2">
+                    <navigationItem key="navigationItem" title="Image Galleries" id="88l-2R-Fa2">
                         <barButtonItem key="rightBarButtonItem" title="➕" id="Dma-Eh-s2L">
                             <connections>
                                 <action selector="onTapAddButton:" destination="gEL-pN-x1O" id="QyQ-Jc-TRI"/>
@@ -107,7 +110,7 @@
             </objects>
             <point key="canvasLocation" x="-1550" y="77"/>
         </scene>
-        <!--Image Galleries-->
+        <!--Images-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ImageGalleryViewController" customModule="Image_Gallery" customModuleProvider="target" sceneMemberID="viewController">
@@ -206,7 +209,7 @@
                             <outletCollection property="gestureRecognizers" destination="izA-gb-fMb" appends="YES" id="BhK-jp-U1U"/>
                         </connections>
                     </view>
-                    <navigationItem key="navigationItem" title="Image Galleries" id="dRw-Yq-Vfc"/>
+                    <navigationItem key="navigationItem" title="Images" id="dRw-Yq-Vfc"/>
                     <connections>
                         <outlet property="collectionView" destination="7D6-A1-GkF" id="oLy-FT-Ebl"/>
                     </connections>

@@ -155,8 +155,8 @@ extension ImageGalleryViewController: UICollectionViewDragDelegate {
                       at indexPath: IndexPath
   ) -> [UIDragItem] {
     session.localContext = collectionView
-    let image = UIDragItem(itemProvider: NSItemProvider(contentsOf: getImageData(at: indexPath).url)!)
-    return [image] // TODO
+    let url = UIDragItem(itemProvider: NSItemProvider(contentsOf: getImageData(at: indexPath).url)!)
+    return [url]
   }
 }
 
@@ -166,7 +166,7 @@ extension ImageGalleryViewController: UICollectionViewDropDelegate {
   func collectionView(_ collectionView: UICollectionView,
                       canHandle session: UIDropSession
   ) -> Bool {
-    return session.canLoadObjects(ofClass: UIImage.self) && session.canLoadObjects(ofClass: URL.self)
+    return session.canLoadObjects(ofClass: UIImage.self) && session.canLoadObjects(ofClass: URL.self) && !galleries.isEmpty
   }
   
   func collectionView(_ collectionView: UICollectionView,
@@ -232,17 +232,15 @@ extension ImageGalleryViewController: GalleryChooserTableViewControllerDelegate 
     collectionView.reloadData()
   }
   
-  func selectGallery(_ gallery: ImageGallery) {
-    if !galleries.contains(where: {
-      $0.title == gallery.title
-    }) {
-      galleries.append(gallery)
-    }
+  func showGallery(_ gallery: ImageGallery) {
+    galleries = [gallery]
     collectionView.reloadData()
   }
   
-  func deselectGallery(_ gallery: ImageGallery) {
-    galleries.removeAll { $0.title == gallery.title}
+  func hideGallery(_ gallery: ImageGallery) {
+    galleries.removeAll {
+      $0 === gallery
+    }
     collectionView.reloadData()
   }
 }

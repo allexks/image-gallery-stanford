@@ -9,8 +9,8 @@
 import UIKit
 
 protocol GalleryChooserTableViewControllerDelegate: class {
-  func selectGallery(_ gallery: ImageGallery)
-  func deselectGallery(_ gallery: ImageGallery)
+  func showGallery(_ gallery: ImageGallery)
+  func hideGallery(_ gallery: ImageGallery)
   func renameGallery(_ gallery: ImageGallery, with newName: String)
 }
 
@@ -72,15 +72,55 @@ class GalleryChooserTableViewController: UITableViewController {
   }
   
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    delegate?.selectGallery(getGallery(for: indexPath))
-  }
-  
-  override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-    delegate?.deselectGallery(getGallery(for: indexPath))
+    guard indexPath.section != 1 else { return }
+    delegate?.showGallery(getGallery(for: indexPath))
   }
   
   override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
     return CGFloat.leastNormalMagnitude
+  }
+  
+  override func tableView(_ tableView: UITableView,
+                          editActionsForRowAt indexPath: IndexPath
+  ) -> [UITableViewRowAction]? {
+    let deleteAction = UITableViewRowAction(style: .destructive,
+                                            title: "X") { [weak self] (_, indexPath) in
+      guard let self = self else { return }
+      tableView.performBatchUpdates({
+          self.delegate?.hideGallery(self.getGallery(for: indexPath))
+          let newIndexPath = IndexPath(row: self.recentlyDeletedGalleries.endIndex, section: 1)
+          self.deleteGallery(at: indexPath)
+          if self.recentlyDeletedGalleries.count == 0 {
+            tableView.deleteSections(IndexSet(arrayLiteral: 1), with: .automatic)
+          }
+          if indexPath.section == 0 {
+            tableView.insertRows(at: [newIndexPath], with: .automatic)
+            if newIndexPath.row == 0 {
+              tableView.insertSections(IndexSet(arrayLiteral: 1), with: .automatic)
+            }
+          }
+          tableView.deleteRows(at: [indexPath], with: .automatic)
+      }, completion: nil)
+    }
+    
+    var result = [deleteAction]
+    
+    if indexPath.section == 1 {
+      result.append(UITableViewRowAction(style: .normal, title: "Restore") { [weak self] (_, indexPath) in
+        guard let self = self else { return }
+        tableView.performBatchUpdates({
+          let newIndexPath = IndexPath(row: self.savedGalleries.endIndex, section: 0)
+          self.undeleteGallery(at: indexPath)
+          if self.recentlyDeletedGalleries.count == 0 {
+            tableView.deleteSections(IndexSet(arrayLiteral: 1), with: .automatic)
+          }
+          tableView.deleteRows(at: [indexPath], with: .automatic)
+          tableView.insertRows(at: [newIndexPath], with: .automatic)
+        }, completion: nil)
+      })
+    }
+    
+    return result
   }
   
   // MARK: - Helper methods
@@ -111,5 +151,41 @@ class GalleryChooserTableViewController: UITableViewController {
       delegate?.renameGallery(gallery, with: newTitle)
       gallery.title = newTitle
     }
+  }
+  
+  private func deleteGallery(at indexPath: IndexPath) {
+    switch indexPath.section {
+    case 0:
+      recentlyDeletedGalleries.append(getGallery(for: indexPath))
+      savedGalleries.remove(at: indexPath.row)
+    case 1:
+      recentlyDeletedGalleries.remove(at: indexPath.row)
+    default:
+      return
+    }
+  }
+  
+  private func undeleteGallery(at indexPath: IndexPath) {
+    savedGalleries.append(getGallery(for: indexPath))
+    recentlyDeletedGalleries.remove(at: indexPath.row)
+  }
+}
+
+// MARK: - Text Field Delegate
+
+extension GalleryChooserTableViewController: UITextFieldDelegate {
+  func textFieldDidEndEditing(_ textField: UITextField) {
+    guard let cell = textField.superview?.superview as? GalleryCell,
+      let indexPath = tableView.indexPath(for: cell) else {
+        return
+    }
+    
+    rename(getGallery(for: indexPath), to: textField.text)
+    textField.isEnabled = false
+  }
+  
+  func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    textField.resignFirstResponder()
+    return false
   }
 }

@@ -158,9 +158,9 @@
 		1A7B174522AFC4DB0058A8BD /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				1A26DDA922B25CC3000A889A /* GalleryCell.swift */,
 				1A7B174622AFC5090058A8BD /* ImageCell.swift */,
 				1A24A11222B10B0400270DFD /* ImageGalleryHeader.swift */,
-				1A26DDA922B25CC3000A889A /* GalleryCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";

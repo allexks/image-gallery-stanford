@@ -24,6 +24,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     masterVC.delegate = detailVC
     
+    detailVC.navigationItem.leftItemsSupplementBackButton = true
+    detailVC.navigationItem.leftBarButtonItem = splitVC.displayModeButtonItem
+    
     return true
   }
 }
