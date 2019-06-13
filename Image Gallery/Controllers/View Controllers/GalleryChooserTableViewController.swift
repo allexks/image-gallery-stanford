@@ -71,9 +71,17 @@ class GalleryChooserTableViewController: UITableViewController {
     }
   }
   
+  override func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
+    return indexPath.section != 1
+  }
+  
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     guard indexPath.section != 1 else { return }
     delegate?.showGallery(getGallery(for: indexPath))
+    if let galleryVC = delegate as? ImageGalleryViewController,
+      let rightNavCtrl = galleryVC.navigationController {
+      splitViewController?.showDetailViewController(rightNavCtrl, sender: nil)
+    }
   }
   
   override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
