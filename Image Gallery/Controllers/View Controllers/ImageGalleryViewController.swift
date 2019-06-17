@@ -191,11 +191,11 @@ extension ImageGalleryViewController: UICollectionViewDropDelegate {
   
   func collectionView(_ collectionView: UICollectionView,
                       performDropWith coordinator: UICollectionViewDropCoordinator) {
-    let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(row: galleries[0].count, section: 0)
     
     coordinator.items.forEach { dropItem in
       if let sourceIndexPath = dropItem.sourceIndexPath {
         // local drag n drop
+        let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(row: galleries[0].count-1, section: 0)
           collectionView.performBatchUpdates({
             let imageData = getImageData(at: sourceIndexPath)
             removeImage(at: sourceIndexPath)
@@ -208,6 +208,7 @@ extension ImageGalleryViewController: UICollectionViewDropDelegate {
           })
       } else {
         // drop from outer space
+        let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(row: galleries[0].count, section: 0)
         let placeholder = coordinator.drop(dropItem.dragItem, to: UICollectionViewDropPlaceholder(insertionIndexPath: destinationIndexPath, reuseIdentifier: dropPlaceholderReuseIdentifier))
         dropItem.dragItem.itemProvider.loadObject(ofClass: UIImage.self) {(image, err) in
           guard let image = image as? UIImage,
