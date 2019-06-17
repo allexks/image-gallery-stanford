@@ -14,19 +14,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    guard let splitVC = window?.rootViewController as? UISplitViewController,
-      let leftNavigationController = splitVC.viewControllers.first as? UINavigationController,
-      let masterVC = leftNavigationController.topViewController as? GalleryChooserTableViewController,
-      let rightNavigationController = splitVC.viewControllers.last as? UINavigationController,
-      let detailVC = rightNavigationController.topViewController as? ImageGalleryViewController else {
-        assert(false, "View controllers relationships not set correctly in application(didFinishLaunchingWithOptions:)")
-    }
-    
-    masterVC.delegate = detailVC
-    
-    detailVC.navigationItem.leftItemsSupplementBackButton = true
-    detailVC.navigationItem.leftBarButtonItem = splitVC.displayModeButtonItem
-    
     return true
   }
 }

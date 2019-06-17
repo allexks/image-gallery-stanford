@@ -18,11 +18,17 @@ class GalleryChooserTableViewController: UITableViewController {
   
   // MARK: - Properties
   
-  let galleryCellReusableIdentifier = "Image Gallery Cell"
-  let defaultNewGalleryName = "New Gallery"
+  private let galleryCellReusableIdentifier = "Image Gallery Cell"
   
-  var savedGalleries: [ImageGallery] = []
-  var recentlyDeletedGalleries: [ImageGallery] = []
+  private let defaultNewGalleryName = "New Gallery"
+  
+  private let savedGalleriesIndexPathSection = 0
+  private let savedGalleriesHeader = "Image Galleries"
+  private let recentlyDeletedIndexPathSection = 1
+  private let recentlyDeletedHeader = "Recently Deleted"
+  
+  private(set) var savedGalleries: [ImageGallery] = []
+  private(set) var recentlyDeletedGalleries: [ImageGallery] = []
   
   weak var delegate: GalleryChooserTableViewControllerDelegate?
   
@@ -40,9 +46,9 @@ class GalleryChooserTableViewController: UITableViewController {
   
   override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     switch section {
-    case 0:
+    case savedGalleriesIndexPathSection:
       return savedGalleries.count
-    case 1:
+    case recentlyDeletedIndexPathSection:
       return recentlyDeletedGalleries.count
     default:
       return 0
@@ -62,22 +68,23 @@ class GalleryChooserTableViewController: UITableViewController {
   
   override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
     switch section {
-    case 0:
-      return "Image Galleries"
-    case 1:
-      return "Recently Deleted"
+    case savedGalleriesIndexPathSection:
+      return savedGalleriesHeader
+    case recentlyDeletedIndexPathSection:
+      return recentlyDeletedHeader
     default:
       return nil
     }
   }
   
   override func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-    return indexPath.section != 1
+    return indexPath.section != recentlyDeletedIndexPathSection
   }
   
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    guard indexPath.section != 1 else { return }
+    guard indexPath.section != recentlyDeletedIndexPathSection else { return }
     delegate?.showGallery(getGallery(for: indexPath))
+    // Note: The following code is a fix for compact width devices
     if let galleryVC = delegate as? ImageGalleryViewController,
       let rightNavCtrl = galleryVC.navigationController {
       splitViewController?.showDetailViewController(rightNavCtrl, sender: nil)
@@ -90,37 +97,37 @@ class GalleryChooserTableViewController: UITableViewController {
   
   override func tableView(_ tableView: UITableView,
                           editActionsForRowAt indexPath: IndexPath
-  ) -> [UITableViewRowAction]? {
-    let deleteAction = UITableViewRowAction(style: .destructive,
-                                            title: "X") { [weak self] (_, indexPath) in
+    ) -> [UITableViewRowAction]? {
+    let deleteAction = UITableViewRowAction(style: .destructive, title: "X") { [weak self] (_, indexPath) in
       guard let self = self else { return }
       tableView.performBatchUpdates({
-          self.delegate?.hideGallery(self.getGallery(for: indexPath))
-          let newIndexPath = IndexPath(row: self.recentlyDeletedGalleries.endIndex, section: 1)
-          self.deleteGallery(at: indexPath)
-          if self.recentlyDeletedGalleries.count == 0 {
-            tableView.deleteSections(IndexSet(arrayLiteral: 1), with: .automatic)
+        self.delegate?.hideGallery(self.getGallery(for: indexPath))
+        let newIndexPathIfMoveIntoRecentlyDeleted = IndexPath(row: self.recentlyDeletedGalleries.endIndex,
+                                     section: self.recentlyDeletedIndexPathSection)
+        self.deleteGallery(at: indexPath)
+        if self.recentlyDeletedGalleries.count == 0 {
+          tableView.deleteSections(IndexSet(arrayLiteral: self.recentlyDeletedIndexPathSection), with: .automatic)
+        }
+        if indexPath.section == self.savedGalleriesIndexPathSection {
+          tableView.insertRows(at: [newIndexPathIfMoveIntoRecentlyDeleted], with: .automatic)
+          if newIndexPathIfMoveIntoRecentlyDeleted.row == 0 {
+            tableView.insertSections(IndexSet(arrayLiteral: self.recentlyDeletedIndexPathSection), with: .automatic)
           }
-          if indexPath.section == 0 {
-            tableView.insertRows(at: [newIndexPath], with: .automatic)
-            if newIndexPath.row == 0 {
-              tableView.insertSections(IndexSet(arrayLiteral: 1), with: .automatic)
-            }
-          }
-          tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+        tableView.deleteRows(at: [indexPath], with: .automatic)
       }, completion: nil)
     }
     
     var result = [deleteAction]
     
-    if indexPath.section == 1 {
+    if indexPath.section == recentlyDeletedIndexPathSection {
       result.append(UITableViewRowAction(style: .normal, title: "Restore") { [weak self] (_, indexPath) in
         guard let self = self else { return }
         tableView.performBatchUpdates({
-          let newIndexPath = IndexPath(row: self.savedGalleries.endIndex, section: 0)
+          let newIndexPath = IndexPath(row: self.savedGalleries.endIndex, section: self.savedGalleriesIndexPathSection)
           self.undeleteGallery(at: indexPath)
           if self.recentlyDeletedGalleries.count == 0 {
-            tableView.deleteSections(IndexSet(arrayLiteral: 1), with: .automatic)
+            tableView.deleteSections(IndexSet(arrayLiteral: self.recentlyDeletedIndexPathSection), with: .automatic)
           }
           tableView.deleteRows(at: [indexPath], with: .automatic)
           tableView.insertRows(at: [newIndexPath], with: .automatic)
@@ -135,15 +142,14 @@ class GalleryChooserTableViewController: UITableViewController {
   
   private func getGallery(for indexPath: IndexPath) -> ImageGallery {
     switch indexPath.section {
-    case 0:
+    case savedGalleriesIndexPathSection:
       return savedGalleries[indexPath.row]
-    case 1:
+    case recentlyDeletedIndexPathSection:
       return recentlyDeletedGalleries[indexPath.row]
     default:
-      fatalError("No gallery associated with indexPath \(indexPath)")
+      assert(false, "No gallery associated with indexPath \(indexPath)")
     }
   }
-  
   
   private func addImageGallery(_ newGallery: ImageGallery) {
     rename(newGallery, to: newGallery.title)
@@ -153,20 +159,20 @@ class GalleryChooserTableViewController: UITableViewController {
   
   private func rename(_ gallery: ImageGallery, to name: String?) {
     var newTitle = name ?? defaultNewGalleryName
-    newTitle = newTitle.madeUnique(withRespectTo: (savedGalleries + recentlyDeletedGalleries).filter{ $0.title != nil }.map { $0.title! })
+    newTitle = newTitle.madeUnique(withRespectTo: (savedGalleries + recentlyDeletedGalleries).compactMap { $0.title })
     
     if gallery.title != newTitle {
-      gallery.title = newTitle
       delegate?.renameGallery(gallery, with: newTitle)
+      gallery.title = newTitle
     }
   }
   
   private func deleteGallery(at indexPath: IndexPath) {
     switch indexPath.section {
-    case 0:
+    case savedGalleriesIndexPathSection:
       recentlyDeletedGalleries.append(getGallery(for: indexPath))
       savedGalleries.remove(at: indexPath.row)
-    case 1:
+    case recentlyDeletedIndexPathSection:
       recentlyDeletedGalleries.remove(at: indexPath.row)
     default:
       return

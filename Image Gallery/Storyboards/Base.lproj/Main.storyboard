@@ -19,15 +19,15 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Image Gallery Cell" rowHeight="63" id="UXH-g9-JI3" customClass="GalleryCell" customModule="Image_Gallery" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="28" width="320" height="63"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Image Gallery Cell" id="UXH-g9-JI3" customClass="GalleryCell" customModule="Image_Gallery" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="28" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="UXH-g9-JI3" id="bI9-1E-0WO">
-                                    <rect key="frame" x="0.0" y="0.0" width="320" height="62.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <textField opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Image Gallery Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eav-s5-4OY">
-                                            <rect key="frame" x="20" y="5" width="290" height="52.5"/>
+                                            <rect key="frame" x="20" y="5" width="290" height="33.5"/>
                                             <nil key="textColor"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                             <textInputTraits key="textInputTraits"/>
@@ -81,10 +81,10 @@
             </objects>
             <point key="canvasLocation" x="-1550" y="-650"/>
         </scene>
-        <!--Split View Controller-->
+        <!--Image Gallery Split View Controller-->
         <scene sceneID="fzA-FF-RIS">
             <objects>
-                <splitViewController id="COq-KG-Fja" sceneMemberID="viewController">
+                <splitViewController id="COq-KG-Fja" customClass="ImageGallerySplitViewController" customModule="Image_Gallery" customModuleProvider="target" sceneMemberID="viewController">
                     <connections>
                         <segue destination="8hC-g0-jln" kind="relationship" relationship="masterViewController" id="k5I-2U-hiK"/>
                         <segue destination="3Mv-4A-GCl" kind="relationship" relationship="detailViewController" id="dxz-iB-KG9"/>

@@ -178,7 +178,7 @@ extension ImageGalleryViewController: UICollectionViewDropDelegate {
   func collectionView(_ collectionView: UICollectionView,
                       canHandle session: UIDropSession
     ) -> Bool {
-    return session.canLoadObjects(ofClass: UIImage.self) || session.canLoadObjects(ofClass: URL.self)
+    return (session.canLoadObjects(ofClass: UIImage.self) || session.canLoadObjects(ofClass: URL.self)) && gallery != nil
   }
   
   func collectionView(_ collectionView: UICollectionView,
@@ -191,11 +191,10 @@ extension ImageGalleryViewController: UICollectionViewDropDelegate {
   
   func collectionView(_ collectionView: UICollectionView,
                       performDropWith coordinator: UICollectionViewDropCoordinator) {
-    
     coordinator.items.forEach { dropItem in
       if let sourceIndexPath = dropItem.sourceIndexPath {
         // local drag n drop
-        let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(row: gallery?.count ?? 0, section: 0)
+        let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(row: gallery!.count-1, section: 0) // subtracting one in order to manage out of bounds crashes
         collectionView.performBatchUpdates({
           let imageData = getImageData(at: sourceIndexPath)!
           removeImage(at: sourceIndexPath)
@@ -207,7 +206,7 @@ extension ImageGalleryViewController: UICollectionViewDropDelegate {
         })
       } else {
         // drop from outer space
-        let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(row: gallery?.count ?? 0, section: 0)
+        let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(row: gallery!.count, section: 0)
         let placeholder = coordinator.drop(dropItem.dragItem, to: UICollectionViewDropPlaceholder(insertionIndexPath: destinationIndexPath, reuseIdentifier: dropPlaceholderReuseIdentifier))
         let _ = dropItem.dragItem.itemProvider.loadObject(ofClass: URL.self) {(url, err) in
           guard let url = url,
@@ -237,6 +236,9 @@ extension ImageGalleryViewController: UICollectionViewDropDelegate {
 // MARK: - Galery Chooser Table View Controller Delegate
 extension ImageGalleryViewController: GalleryChooserTableViewControllerDelegate {
   func renameGallery(_ gallery: ImageGallery, with newName: String) {
+    if self.gallery === gallery {
+      self.gallery?.title = newName
+    }
     collectionView.reloadData()
   }
   

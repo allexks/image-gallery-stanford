@@ -28,7 +28,9 @@ class ImageGallery {
 
 extension ImageGallery {
   struct ImageData {
+    /// The URL of the image.
     var url: URL
+    /// The aspect ratio of the image defined as width over height.
     var aspectRatio: Double
   }
 }
