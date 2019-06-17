@@ -9,21 +9,27 @@
 import Foundation
 
 class ImageGallery {
-  typealias ImageTuple = (url: URL, aspectRatio: Double)
-  
-  var images: [ImageTuple] = []
+  var images: [ImageData] = []
   var title: String?
   
   var count: Int {
     return images.count
   }
   
-  init(_ arr: [ImageTuple] = [], title: String? = nil) {
+  init(_ arr: [ImageData] = [], title: String? = nil) {
     images = arr
     self.title = title
   }
   
-  subscript(index: Int) -> ImageTuple {
+  subscript(index: Int) -> ImageData {
     return images[index]
   }
 }
+
+extension ImageGallery {
+  struct ImageData {
+    var url: URL
+    var aspectRatio: Double
+  }
+}
+

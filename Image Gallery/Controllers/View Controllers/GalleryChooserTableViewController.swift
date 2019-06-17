@@ -156,8 +156,8 @@ class GalleryChooserTableViewController: UITableViewController {
     newTitle = newTitle.madeUnique(withRespectTo: (savedGalleries + recentlyDeletedGalleries).filter{ $0.title != nil }.map { $0.title! })
     
     if gallery.title != newTitle {
-      delegate?.renameGallery(gallery, with: newTitle)
       gallery.title = newTitle
+      delegate?.renameGallery(gallery, with: newTitle)
     }
   }
   

@@ -23,7 +23,7 @@ class ImageGalleryViewController: UIViewController {
   private let sectionInsets = UIEdgeInsets(top: 50.0, left: 20.0, bottom: 50.0, right: 20.0)
   private let itemMinimumWidth: CGFloat = 20.0
   
-  private lazy var galleries: [ImageGallery] = []
+  private var gallery: ImageGallery?
   
   private lazy var fetcher = URLFetcher.shared
   
@@ -57,23 +57,24 @@ class ImageGalleryViewController: UIViewController {
       let destination = segue.destination as? ImageScrollViewController,
       let cell = sender as? ImageCell,
       let indexPath = collectionView.indexPath(for: cell) {
-      destination.url = getImageData(at: indexPath).url
+      destination.url = getImageData(at: indexPath)!.url
     }
   }
   
   // MARK: - Helper methods
-  private func getImageData(at indexPath: IndexPath) -> ImageGallery.ImageTuple {
-    return galleries[indexPath.section][indexPath.row]
+  
+  private func getImageData(at indexPath: IndexPath) -> ImageGallery.ImageData? {
+    return gallery?[indexPath.row]
   }
   
   private func removeImage(at indexPath: IndexPath) {
-    galleries[indexPath.section].images.remove(at: indexPath.row)
+    gallery?.images.remove(at: indexPath.row)
   }
   
-  private func insertImage(_ tuple: ImageGallery.ImageTuple, at indexPath: IndexPath) {
-    let endIndex = galleries[indexPath.section].images.endIndex
+  private func insertImage(_ image: ImageGallery.ImageData, at indexPath: IndexPath) {
+    let endIndex = gallery?.images.endIndex ?? 0
     let index = indexPath.row > endIndex ? endIndex : indexPath.row
-    galleries[indexPath.section].images.insert(tuple, at: index)
+    gallery?.images.insert(image, at: index)
   }
 }
 
@@ -85,28 +86,29 @@ extension ImageGalleryViewController: UICollectionViewDelegate {}
 
 extension ImageGalleryViewController: UICollectionViewDataSource {
   func numberOfSections(in collectionView: UICollectionView) -> Int {
-    return galleries.count
+    return gallery == nil ? 0 : 1
   }
   
   func collectionView(_ collectionView: UICollectionView,
                       numberOfItemsInSection section: Int
-  ) -> Int {
-    return galleries[section].count
+    ) -> Int {
+    return gallery?.count ?? 0
   }
   
   func collectionView(_ collectionView: UICollectionView,
                       cellForItemAt indexPath: IndexPath
-  ) -> UICollectionViewCell {
+    ) -> UICollectionViewCell {
     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier,
                                                         for: indexPath) as? ImageCell else {
-      return UICollectionViewCell()
+                                                          return UICollectionViewCell()
     }
     
     cell.backgroundColor = .clear
-    let url = getImageData(at: indexPath).url
-    fetcher.fetchImage(from: url){ (_, image) in
-      DispatchQueue.main.async {
-        cell.image.image = image
+    if let url = getImageData(at: indexPath)?.url {
+      fetcher.fetchImage(from: url){ (_, image) in
+        DispatchQueue.main.async {
+          cell.image.image = image
+        }
       }
     }
     return cell
@@ -115,18 +117,16 @@ extension ImageGalleryViewController: UICollectionViewDataSource {
   func collectionView(_ collectionView: UICollectionView,
                       viewForSupplementaryElementOfKind kind: String,
                       at indexPath: IndexPath
-  ) -> UICollectionReusableView {
+    ) -> UICollectionReusableView {
     switch kind {
     case UICollectionView.elementKindSectionHeader:
       guard let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerViewReuseIdentifier, for: indexPath) as? ImageGalleryHeader else {
         assert(false, "Could not create collection view header with reuse identifier \"\(headerViewReuseIdentifier)\"")
-        //return UICollectionReusableView()
       }
-      headerView.label.text = galleries[indexPath.section].title
+      headerView.label.text = gallery?.title
       return headerView
     default:
       assert(false, "Unexpected collection view element kind: \(kind)")
-      //return UICollectionReusableView()
     }
   }
 }
@@ -137,8 +137,8 @@ extension ImageGalleryViewController: UICollectionViewDelegateFlowLayout {
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       sizeForItemAt indexPath: IndexPath
-  ) -> CGSize {
-    let ratio = getImageData(at: indexPath).aspectRatio
+    ) -> CGSize {
+    let ratio = getImageData(at: indexPath)?.aspectRatio ?? 1.0
     let itemHeight = itemWidth / CGFloat(ratio)
     
     return CGSize(width: itemWidth, height: itemHeight)
@@ -147,14 +147,14 @@ extension ImageGalleryViewController: UICollectionViewDelegateFlowLayout {
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       insetForSectionAt section: Int
-  ) -> UIEdgeInsets {
+    ) -> UIEdgeInsets {
     return sectionInsets
   }
   
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       minimumLineSpacingForSectionAt section: Int
-  ) -> CGFloat {
+    ) -> CGFloat {
     return sectionInsets.left
   }
 }
@@ -165,9 +165,9 @@ extension ImageGalleryViewController: UICollectionViewDragDelegate {
   func collectionView(_ collectionView: UICollectionView,
                       itemsForBeginning session: UIDragSession,
                       at indexPath: IndexPath
-  ) -> [UIDragItem] {
+    ) -> [UIDragItem] {
     session.localContext = collectionView
-    let url = UIDragItem(itemProvider: NSItemProvider(contentsOf: getImageData(at: indexPath).url)!)
+    let url = UIDragItem(itemProvider: NSItemProvider(contentsOf: getImageData(at: indexPath)!.url)!)
     return [url]
   }
 }
@@ -177,8 +177,8 @@ extension ImageGalleryViewController: UICollectionViewDragDelegate {
 extension ImageGalleryViewController: UICollectionViewDropDelegate {
   func collectionView(_ collectionView: UICollectionView,
                       canHandle session: UIDropSession
-  ) -> Bool {
-    return session.canLoadObjects(ofClass: UIImage.self) && session.canLoadObjects(ofClass: URL.self) && !galleries.isEmpty
+    ) -> Bool {
+    return session.canLoadObjects(ofClass: UIImage.self) || session.canLoadObjects(ofClass: URL.self)
   }
   
   func collectionView(_ collectionView: UICollectionView,
@@ -195,37 +195,36 @@ extension ImageGalleryViewController: UICollectionViewDropDelegate {
     coordinator.items.forEach { dropItem in
       if let sourceIndexPath = dropItem.sourceIndexPath {
         // local drag n drop
-        let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(row: galleries[0].count-1, section: 0)
-          collectionView.performBatchUpdates({
-            let imageData = getImageData(at: sourceIndexPath)
-            removeImage(at: sourceIndexPath)
-            insertImage(imageData, at: destinationIndexPath)
-            collectionView.deleteItems(at: [sourceIndexPath])
-            collectionView.insertItems(at: [destinationIndexPath])
-          }, completion: { _ in
-            coordinator.drop(dropItem.dragItem, toItemAt: destinationIndexPath)
-            //collectionView.reloadData()
-          })
+        let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(row: gallery?.count ?? 0, section: 0)
+        collectionView.performBatchUpdates({
+          let imageData = getImageData(at: sourceIndexPath)!
+          removeImage(at: sourceIndexPath)
+          insertImage(imageData, at: destinationIndexPath)
+          collectionView.deleteItems(at: [sourceIndexPath])
+          collectionView.insertItems(at: [destinationIndexPath])
+        }, completion: { _ in
+          coordinator.drop(dropItem.dragItem, toItemAt: destinationIndexPath)
+        })
       } else {
         // drop from outer space
-        let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(row: galleries[0].count, section: 0)
+        let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(row: gallery?.count ?? 0, section: 0)
         let placeholder = coordinator.drop(dropItem.dragItem, to: UICollectionViewDropPlaceholder(insertionIndexPath: destinationIndexPath, reuseIdentifier: dropPlaceholderReuseIdentifier))
-        dropItem.dragItem.itemProvider.loadObject(ofClass: UIImage.self) {(image, err) in
-          guard let image = image as? UIImage,
-            err == nil,
-            let url = image.storeLocallyAsJPEG(named: String(Date().timeIntervalSinceReferenceDate))
-          else {
-            DispatchQueue.main.async {
-              placeholder.deletePlaceholder()
-            }
-            print("Error fetching image for destination index path \(destinationIndexPath).")
-            return
+        let _ = dropItem.dragItem.itemProvider.loadObject(ofClass: URL.self) {(url, err) in
+          guard let url = url,
+            err == nil else {
+              DispatchQueue.main.async {
+                placeholder.deletePlaceholder()
+              }
+              print("Error fetching image for destination index path \(destinationIndexPath).")
+              return
           }
-          let aspectRatio = Double(image.size.width / image.size.height)
-          let newImageData = ImageGallery.ImageTuple(url: url, aspectRatio: aspectRatio)
-          DispatchQueue.main.async {
-            placeholder.commitInsertion { [weak self] indexPath in
-              self?.insertImage(newImageData, at: indexPath)
+          self.fetcher.fetchImage(from: url) { (url, image) in
+            let aspectRatio = Double(image.size.width / image.size.height)
+            let newImageData = ImageGallery.ImageData(url: url, aspectRatio: aspectRatio)
+            DispatchQueue.main.async {
+              placeholder.commitInsertion { [weak self] indexPath in
+                self?.insertImage(newImageData, at: indexPath)
+              }
             }
           }
         }
@@ -234,26 +233,20 @@ extension ImageGalleryViewController: UICollectionViewDropDelegate {
   }
 }
 
+
 // MARK: - Galery Chooser Table View Controller Delegate
 extension ImageGalleryViewController: GalleryChooserTableViewControllerDelegate {
   func renameGallery(_ gallery: ImageGallery, with newName: String) {
-    galleries.forEach {
-      if $0.title == gallery.title {
-        $0.title = newName
-      }
-    }
     collectionView.reloadData()
   }
   
   func showGallery(_ gallery: ImageGallery) {
-    galleries = [gallery]
+    self.gallery = gallery
     collectionView.reloadData()
   }
   
   func hideGallery(_ gallery: ImageGallery) {
-    galleries.removeAll {
-      $0 === gallery
-    }
+    self.gallery = nil
     collectionView.reloadData()
   }
 }
