@@ -26,8 +26,8 @@
                                     <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <textField opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Image Gallery Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eav-s5-4OY">
-                                            <rect key="frame" x="20" y="5" width="290" height="33.5"/>
+                                        <textField opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Image Gallery Name" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eav-s5-4OY">
+                                            <rect key="frame" x="20" y="5" width="213" height="29"/>
                                             <nil key="textColor"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                             <textInputTraits key="textInputTraits"/>
@@ -37,10 +37,8 @@
                                         </textField>
                                     </subviews>
                                     <constraints>
-                                        <constraint firstItem="eav-s5-4OY" firstAttribute="leading" secondItem="bI9-1E-0WO" secondAttribute="leading" constant="20" id="0ac-Sd-Yjb"/>
-                                        <constraint firstAttribute="bottom" secondItem="eav-s5-4OY" secondAttribute="bottom" constant="5" id="dbP-L1-v3v"/>
-                                        <constraint firstItem="eav-s5-4OY" firstAttribute="top" secondItem="bI9-1E-0WO" secondAttribute="top" constant="5" id="neE-aU-Zpk"/>
-                                        <constraint firstAttribute="trailing" secondItem="eav-s5-4OY" secondAttribute="trailing" constant="10" id="xBD-Z3-hps"/>
+                                        <constraint firstItem="eav-s5-4OY" firstAttribute="top" secondItem="bI9-1E-0WO" secondAttribute="top" constant="5" id="I6C-NU-PNQ"/>
+                                        <constraint firstItem="eav-s5-4OY" firstAttribute="leading" secondItem="bI9-1E-0WO" secondAttribute="leading" constant="20" id="v4c-E8-fsM"/>
                                     </constraints>
                                 </tableViewCellContentView>
                                 <connections>
